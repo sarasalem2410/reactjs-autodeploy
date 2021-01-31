@@ -114,10 +114,12 @@ jobs:
             cd frontend
             npm audit --audit-level=critical
       - slack/notify:
+          channel: C01LUFSU1QR
           event: fail
           mentions: "@EngineeringTeam"
           template: basic_fail_1
       - slack/notify:
+          channel: C01LUFSU1QR
           event: pass
           template: success_tagged_deploy_1
 
@@ -138,10 +140,12 @@ jobs:
             cd backend
             npm audit fix --audit-level=critical --force
       - slack/notify:
+          channel: C01LUFSU1QR
           event: fail
           mentions: "@EngineeringTeam"
           template: basic_fail_1
       - slack/notify:
+          channel: C01LUFSU1QR
           event: pass
           template: success_tagged_deploy_1
 
