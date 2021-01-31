@@ -128,7 +128,7 @@ jobs:
           name: Analyze backend.
           command: |
             cd backend
-            npm --audit-level=critical
+            npm audit --audit-level=critical
 
 
   # deploy-infrastructure:
