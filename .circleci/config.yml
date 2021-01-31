@@ -199,7 +199,7 @@ jobs:
           event: fail
           mentions: "@here"
           template: basic_fail_1
-          
+
   configure-infrastructure:
     docker:
       # Docker image here that supports Ansible
@@ -211,7 +211,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["6c:7a:de:44:06:67:79:b5:50:99:0f:8e:58:6f:d3:92"]
       # attach workspace
-       - attach_workspace:
+      - attach_workspace:
           at: ~/
       - run:
           name: Install dependencies
