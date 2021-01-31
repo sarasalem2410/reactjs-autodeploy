@@ -128,7 +128,7 @@ jobs:
           name: Analyze backend.
           command: |
             cd backend
-            npm audit --audit-level=critical
+            npm audit fix --audit-level=critical --force
 
 
   # deploy-infrastructure:
@@ -309,6 +309,7 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+      # - notify
       # - deploy-infrastructure:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       #     filters:
