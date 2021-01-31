@@ -153,7 +153,7 @@ jobs:
   deploy-infrastructure:
     docker:
       # Docker image here that supports AWS CLI
-      - image: circleci/aws-cli
+      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - checkout
@@ -346,6 +346,7 @@ workflows:
           requires: [build-frontend]
           context: slack-context
       - deploy-infrastructure:
+          context: slack-context
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
