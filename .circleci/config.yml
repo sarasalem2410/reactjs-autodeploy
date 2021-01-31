@@ -44,15 +44,11 @@ jobs:
           name: Build front-end
           command: |
             cd frontend &&\
-            npm i
+            npm i &&\
+            npm run build
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-      - run:
-          name: Compile frontend.
-          command: |
-            npm run build
-
   build-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -64,14 +60,11 @@ jobs:
           name: Back-end build
           command: |
             cd backend &&\
-            npm i
+            npm i &&\
+            npm run build
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      - run:
-          name: Compile backend.
-          command: |
-            npm run build
 
 
   # test-frontend:
