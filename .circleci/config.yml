@@ -97,7 +97,6 @@ jobs:
             npm audit fix
             npm run test
 
-
   scan-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -108,10 +107,10 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       # Your job code here
-      run:
-        name: Analyze frontend.
-        command: |
-          npm audit --audit-level=critical
+      - run:
+          name: Analyze frontend.
+          command: |
+            npm audit --audit-level=critical
 
   scan-backend:
     docker:
@@ -128,6 +127,7 @@ jobs:
           name: Analyze backend.
           command: |
             npm --audit-level=critical
+
 
   # deploy-infrastructure:
   #   docker:
