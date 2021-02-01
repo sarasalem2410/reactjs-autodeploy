@@ -15,6 +15,22 @@ commands:
           command: |
             aws cloudformation delete-stack --stack-name backend-<< parameters.workflow_id >>
             aws cloudformation delete-stack --stack-name frontend-<< parameters.workflow_id >>
+
+  write-env-file:
+    description: Write the env file for running backend and migrations.
+    steps:
+      - run:
+          name: Write .env
+          command: |
+            echo ENVIRONMENT=production > backend/.env
+            echo TYPEORM_CONNECTION=postgres >> backend/.env
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> backend/.env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
+
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
@@ -22,8 +38,10 @@ commands:
       workflow_id:
         type: "string"
     steps:
+      - write-env-file
       - run:
           name: Revert migrations
+          when: on_fail
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
@@ -31,9 +49,10 @@ commands:
             SUCCESS=$(curl -H "token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734" \
                 --request GET \
                 https://api.memstash.io/values/migrations-<< parameters.workflow_id >>)
+            echo $SUCCESS
             if(( $SUCCESS==1 ));
             then
-              cd ~/project/backend
+              cd backend
               npm install
               npm run migration:revert
             fi
@@ -200,7 +219,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
+            - .circleci/ansible/inventory.txt
       # # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
@@ -223,7 +242,7 @@ jobs:
           fingerprints: ["6c:7a:de:44:06:67:79:b5:50:99:0f:8e:58:6f:d3:92"]
       # attach workspace
       - attach_workspace:
-          at: ~/project
+          at: ~/
       - run:
           name: Install ansible.
           command: |
@@ -260,6 +279,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
+      - write-env-file
       - run:
           name: Run migrations
           command: |
@@ -276,6 +296,7 @@ jobs:
               --data '1' \
               https://api.memstash.io/values/migrations-${CIRCLE_WORKFLOW_ID:0:4}
             fi
+            echo Key: migrations-${CIRCLE_WORKFLOW_ID:0:4}
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
 
@@ -323,7 +344,8 @@ jobs:
           fingerprints: ["6c:7a:de:44:06:67:79:b5:50:99:0f:8e:58:6f:d3:92"]
       # attach workspace
       - attach_workspace:
-          at: ~/project
+          at: ~/
+      - write-env-file
       - run:
           name: Install dependencies
           command: |
@@ -339,21 +361,10 @@ jobs:
             echo $URLS >> inventory.txt
             cat inventory.txt
       - run:
-          name: Configure env variables at server
-          no_output_timeout: 30m
-          command: |
-            echo ENVIRONMENT=production > backend/.env
-            echo TYPEORM_CONNECTION=postgres >> backend/.env
-            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> backend/.env
-            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
-            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
-      - run:
           name: Deploy backend
           no_output_timeout: 30m
           command: |
+            pwd
             cd backend
             npm i
             npm run build
