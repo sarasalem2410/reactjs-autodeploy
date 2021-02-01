@@ -309,7 +309,6 @@ jobs:
               https://api.memstash.io/values/migrations-${CIRCLE_WORKFLOW_ID:0:4}
             fi
             echo Key: migrations-${CIRCLE_WORKFLOW_ID:0:4}
-            cat migrations-${CIRCLE_WORKFLOW_ID:0:4}.txt
   deploy-frontend:
     docker:
       # Docker image here that supports AWS CLI
