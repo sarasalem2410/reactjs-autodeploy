@@ -15,6 +15,7 @@ commands:
           command: |
             aws cloudformation delete-stack --stack-name backend-<< parameters.workflow_id >>
             aws cloudformation delete-stack --stack-name frontend-<< parameters.workflow_id >>
+            aws s3 rb s3://udapeople-<< parameters.workflow_id >> --force
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -224,7 +225,8 @@ jobs:
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
-
+      - restore_cache:
+          keys: [backend-build]
       - persist_to_workspace:
           root: ~/project
           paths:
@@ -283,42 +285,30 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project
-      # - run:
-      #     name: Install aws cli
-      #     command: |
-      #       apt-get update && \
-      #       apt-get install -y \
-      #           python3 \
-      #           python3-pip \
-      #           python3-setuptools \
-      #           groff \
-      #           less \
-      #       && pip install --upgrade pip \
-      #       && apt-get clean
-      #       pip --no-cache-dir install --upgrade awscli
       - restore_cache:
           keys: [backend-build]
       - run:
           name: Run migrations
           no_output_timeout: 7m
           command: |
-            cd backend
-            MIGRATION_STATUS_CODE=$(npm run migrations)
-            echo $MIGRATION_STATUS_CODE
+            cd backend && npm run migrations | tee migrations-${CIRCLE_WORKFLOW_ID}.txt
       - run:
           name: Send migration results to memstash
           command: |
-            if grep -q "success" $MIGRATION_STATUS_CODE
+            cd backend
+            if grep -q "success" migrations-${CIRCLE_WORKFLOW_ID}.txt
             then
               curl -H "Content-Type: text/plain" -H "token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734" \
               --request PUT \
               --data '1' \
               https://api.memstash.io/values/migrations-${CIRCLE_WORKFLOW_ID:0:4}
+            else
+              curl -H "Content-Type: text/plain" -H "token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734" \
+              --request PUT \
+              --data '0' \
+              https://api.memstash.io/values/migrations-${CIRCLE_WORKFLOW_ID:0:4}
             fi
             echo Key: migrations-${CIRCLE_WORKFLOW_ID:0:4}
-      # - destroy-environment:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
-
   deploy-frontend:
     docker:
       # Docker image here that supports AWS CLI
@@ -364,6 +354,8 @@ jobs:
       # attach workspace
       - attach_workspace:
           at: ~/project
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Install dependencies
           command: |
