@@ -32,10 +32,3 @@
   file:
     path: "~/dist"
     state: directory
-# - name: Copy index test page.
-#   template:
-#     src: "files/index.js"
-#     dest: "~/web/index.js"
-# - name: Executing node js.
-#   shell: |
-#     pm2 start "web/index.js" -f

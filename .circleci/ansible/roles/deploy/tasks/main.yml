@@ -1,0 +1,6 @@
+---
+- name: Copy backend artifact.
+  become: true
+  template:
+    src: "files/backend_artifact.tar.gz"
+    dest: "~/"
