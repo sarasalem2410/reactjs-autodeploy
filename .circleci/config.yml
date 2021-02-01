@@ -190,7 +190,7 @@ jobs:
                 --query 'Reservations[*].Instances[*].PublicIpAddress' \
                 --filters "Name=tag:project,Values=udapeople" \
                 --output text` \
-              https://api.memstash.io/values/IP
+              https://api.memstash.io/values/hosts-deployed-${CIRCLE_WORKFLOW_ID}
       - persist_to_workspace:
           root: ~/
           paths:
@@ -217,18 +217,42 @@ jobs:
           fingerprints: ["6c:7a:de:44:06:67:79:b5:50:99:0f:8e:58:6f:d3:92"]
       # attach workspace
       - attach_workspace:
-          at: ~/
+          at: ~/project
+      - run:
+          name: Install ansible.
+          command: |
+            apk add --update ansible
       - run:
           name: Install dependencies
           command: |
             apk add --update tar gzip ansible nodejs npm curl
             pip install awscli
       - run:
-          name: Configure server
+          name: Setup inventory file
           command: |
-
-
+            cd .circleci/ansible
+            echo "[web]" > inventory.txt
+            URLS=${curl -H "token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734" \
+              --request GET https://api.memstash.io/values/hosts-deployed-${CIRCLE_WORKFLOW_ID}
+            echo $URLS >> inventory.txt
+            cat inventory.txt
+      - run:
+          name: Configure server with ansible
+          no_output_timeout: 30m
+          command: |
+            echo ENVIRONMENT=production > backend/.env
+            echo TYPEORM_CONNECTION=postgres >> backend/.env
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> backend/.env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
       # Here's where you will add some code to rollback on failure
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
 
 #   run-migrations:
 #     docker:
