@@ -15,28 +15,28 @@ commands:
           command: |
             aws cloudformation delete-stack --stack-name backend-<< parameters.workflow_id >>
             aws cloudformation delete-stack --stack-name frontend-<< parameters.workflow_id >>
-revert-migrations:
-  description: Revert the last migration if successfully run in the current workflow.
-  parameters:
-    # Add parameter here
-    workflow_id:
-      type: "string"
-  steps:
-    - run:
-        name: Revert migrations
-        # Add when this will run
-        command: |
-          # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-          #SUCCESS = 1
-          SUCCESS=$(curl -H "token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734" \
-              --request GET \
-              https://api.memstash.io/values/migrations-<< parameters.workflow_id >>)
-          if(( $SUCCESS==1 ));
-          then
-            cd ~/project/backend
-            npm install
-            npm run migration:revert
-          fi
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      # Add parameter here
+      workflow_id:
+        type: "string"
+    steps:
+      - run:
+          name: Revert migrations
+          # Add when this will run
+          command: |
+            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
+            #SUCCESS = 1
+            SUCCESS=$(curl -H "token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734" \
+                --request GET \
+                https://api.memstash.io/values/migrations-<< parameters.workflow_id >>)
+            if(( $SUCCESS==1 ));
+            then
+              cd ~/project/backend
+              npm install
+              npm run migration:revert
+            fi
 
 jobs:
   build-frontend:
