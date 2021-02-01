@@ -16,21 +16,6 @@ commands:
             aws cloudformation delete-stack --stack-name backend-<< parameters.workflow_id >>
             aws cloudformation delete-stack --stack-name frontend-<< parameters.workflow_id >>
 
-  write-env-file:
-    description: Write the env file for running backend and migrations.
-    steps:
-      - run:
-          name: Write .env
-          command: |
-            echo ENVIRONMENT=production > backend/.env
-            echo TYPEORM_CONNECTION=postgres >> backend/.env
-            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> backend/.env
-            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
-            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
-
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
@@ -38,7 +23,6 @@ commands:
       workflow_id:
         type: "string"
     steps:
-      - write-env-file
       - run:
           name: Revert migrations
           when: on_fail
@@ -53,7 +37,7 @@ commands:
             if(( $SUCCESS==1 ));
             then
               cd backend
-              npm install
+              npm i
               npm run migration:revert
             fi
 
@@ -104,6 +88,9 @@ jobs:
             cd frontend
             npm audit fix
             npm run test
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
 
   test-backend:
     docker:
@@ -121,6 +108,9 @@ jobs:
             cd backend
             npm audit fix
             npm run test
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
 
   scan-frontend:
     docker:
@@ -137,6 +127,9 @@ jobs:
           command: |
             cd frontend
             npm audit --audit-level=critical
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
       - slack/notify:
           channel: C01LUFSU1QR
           event: fail
@@ -163,6 +156,9 @@ jobs:
           command: |
             cd backend
             npm audit fix --audit-level=critical --force
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
       - slack/notify:
           channel: C01LUFSU1QR
           event: fail
@@ -203,10 +199,11 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
+            echo "[web]" > .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople" \
-              --output text >> inventory.txt
+              --output text >> .circleci/ansible/inventory.txt
             curl -H "Content-Type: text/plain" -H "token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734" \
               --request PUT \
               --data `aws ec2 describe-instances \
@@ -216,10 +213,23 @@ jobs:
               https://api.memstash.io/values/hosts-deployed-${CIRCLE_WORKFLOW_ID:0:4}
               echo URL: https://api.memstash.io/values/hosts-deployed-${CIRCLE_WORKFLOW_ID:0:4}
               echo Token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734
+      - run:
+          name: Add .env vars to backend distro
+          command: |
+            echo ENVIRONMENT=production > backend/.env
+            echo TYPEORM_CONNECTION=postgres >> backend/.env
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> backend/.env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
+
       - persist_to_workspace:
           root: ~/project
           paths:
             - .circleci/ansible/inventory.txt
+            - backend/
       # # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
@@ -253,14 +263,8 @@ jobs:
             apk add --update tar gzip ansible nodejs npm curl
             pip install awscli
       - run:
-          name: Setup inventory file
-          command: |
-            cd .circleci/ansible
-            echo "[web]" > inventory.txt
-            URLS=$(curl -H "token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734" \
-              --request GET https://api.memstash.io/values/hosts-deployed-${CIRCLE_WORKFLOW_ID:0:4})
-            echo $URLS >> inventory.txt
-            cat inventory.txt
+          name: Check there is .env file at workspace.
+          command: cat backend/.env
       - run:
           name: Configure server with ansible
           no_output_timeout: 30m
@@ -277,11 +281,26 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
+      - attach_workspace:
+          at: ~/project
+      - run:
+          name: Install aws cli
+          command: |
+            apt-get update && \
+            apt-get install -y \
+                python3 \
+                python3-pip \
+                python3-setuptools \
+                groff \
+                less \
+            && pip3 install --upgrade pip \
+            && apt-get clean
+            pip3 --no-cache-dir install --upgrade awscli
       - restore_cache:
           keys: [backend-build]
-      - write-env-file
       - run:
           name: Run migrations
+          no_output_timeout: 7m
           command: |
             cd backend
             MIGRATION_STATUS_CODE=$(npm run migrations)
@@ -345,21 +364,11 @@ jobs:
       # attach workspace
       - attach_workspace:
           at: ~/project
-      - write-env-file
       - run:
           name: Install dependencies
           command: |
             apk add --update tar gzip ansible nodejs npm curl
             pip install awscli
-      - run:
-          name: Setup inventory file
-          command: |
-            cd .circleci/ansible
-            echo "[web]" > inventory.txt
-            URLS=$(curl -H "token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734" \
-              --request GET https://api.memstash.io/values/hosts-deployed-${CIRCLE_WORKFLOW_ID:0:4})
-            echo $URLS >> inventory.txt
-            cat inventory.txt
       - run:
           name: Deploy backend
           no_output_timeout: 30m

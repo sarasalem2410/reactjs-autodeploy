@@ -3,4 +3,8 @@
   become: true
   template:
     src: "files/backend_artifact.tar.gz"
-    dest: "~/"
+    dest: "~/home/ubuntu"
+- name: Check file copied correctly
+  shell: |
+    cd ~/home/ubuntu
+    ls

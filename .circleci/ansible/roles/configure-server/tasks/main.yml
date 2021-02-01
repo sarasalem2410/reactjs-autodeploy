@@ -30,5 +30,21 @@
     state: present
 - name: Create dist directory.
   file:
-    path: "~/dist"
+    path: "~/home/ubuntu/dist"
     state: directory
+# - name: Move backend files to EC2 backend server.
+#   copy:
+#     src: /root/project/backend
+#     dest: ~/home/ubuntu
+# - name: Install package dependencies
+#   shell: |
+#     cd ~/home/ubuntu/backend
+#     npm i
+# - name: Building dist.
+#   shell: |
+#     cd ~/home/ubuntu/backend
+#     npm run build
+# - name: Run migrations.
+#   shell: |
+#     cd ~/home/ubuntu/backend
+#     npm run migrations
