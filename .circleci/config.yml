@@ -293,9 +293,9 @@ jobs:
                 python3-setuptools \
                 groff \
                 less \
-            && pip3 install --upgrade pip \
+            && pip install --upgrade pip \
             && apt-get clean
-            pip3 --no-cache-dir install --upgrade awscli
+            pip --no-cache-dir install --upgrade awscli
       - restore_cache:
           keys: [backend-build]
       - run:
