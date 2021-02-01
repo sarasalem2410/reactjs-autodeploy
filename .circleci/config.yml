@@ -184,7 +184,8 @@ jobs:
               --request PUT \
               --data `aws ec2 describe-instances \
                 --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                --filters "Name=tag:project,Values=udapeople"` \
+                --filters "Name=tag:project,Values=udapeople" \
+                --output text` \
               https://api.memstash.io/values/IP
       # - persist_to_workspace:
       #     root: ~/
@@ -197,7 +198,7 @@ jobs:
           branch_pattern: main
           channel: C01LUFSU1QR
           event: fail
-          mentions: "@here"
+          # mentions: "@here"
           template: basic_fail_1
 
   configure-infrastructure:
