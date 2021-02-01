@@ -167,16 +167,16 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
-              --stack-name backend-${CIRCLE_WORKFLOW_ID} \
-              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
+              --stack-name backend-${CIRCLE_WORKFLOW_ID:0:4} \
+              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:4}
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
-              --stack-name "frontend-${CIRCLE_WORKFLOW_ID}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
+              --stack-name "frontend-${CIRCLE_WORKFLOW_ID:0:4}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:4}"
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -190,8 +190,8 @@ jobs:
                 --query 'Reservations[*].Instances[*].PublicIpAddress' \
                 --filters "Name=tag:project,Values=udapeople" \
                 --output text` \
-              https://api.memstash.io/values/hosts-deployed-${CIRCLE_WORKFLOW_ID}
-              echo URL: https://api.memstash.io/values/hosts-deployed-${CIRCLE_WORKFLOW_ID}
+              https://api.memstash.io/values/hosts-deployed-${CIRCLE_WORKFLOW_ID:0:4}
+              echo URL: https://api.memstash.io/values/hosts-deployed-${CIRCLE_WORKFLOW_ID:0:4}
               echo Token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734
       - persist_to_workspace:
           root: ~/
@@ -199,7 +199,7 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       # # Here's where you will add some code to rollback on failure
       - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID}
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
       - slack/notify:
           branch_pattern: main
           channel: C01LUFSU1QR
@@ -235,7 +235,7 @@ jobs:
             cd .circleci/ansible
             echo "[web]" > inventory.txt
             URLS=${curl -H "token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734" \
-              --request GET https://api.memstash.io/values/hosts-deployed-${CIRCLE_WORKFLOW_ID}
+              --request GET https://api.memstash.io/values/hosts-deployed-${CIRCLE_WORKFLOW_ID:0:4}}
             echo $URLS >> inventory.txt
             cat inventory.txt
       - run:
@@ -254,7 +254,7 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID}
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
 
 #   run-migrations:
 #     docker:
