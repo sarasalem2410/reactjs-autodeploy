@@ -307,7 +307,7 @@ jobs:
             npm run build
             cd dist
             aws s3 sync . s3://udapeople-${CIRCLE_WORKFLOW_ID:0:4} --delete
-      - revert-migration:
+      - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
