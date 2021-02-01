@@ -191,6 +191,8 @@ jobs:
                 --filters "Name=tag:project,Values=udapeople" \
                 --output text` \
               https://api.memstash.io/values/hosts-deployed-${CIRCLE_WORKFLOW_ID}
+              echo URL: https://api.memstash.io/values/hosts-deployed-${CIRCLE_WORKFLOW_ID}
+              echo Token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734
       - persist_to_workspace:
           root: ~/
           paths:
@@ -387,8 +389,8 @@ workflows:
           filters:
             branches:
               only: [main]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
