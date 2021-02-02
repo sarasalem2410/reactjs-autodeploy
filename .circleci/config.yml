@@ -425,6 +425,7 @@ jobs:
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
 
             echo Old Workflow Id: ${OLD_WORKFLOW_ID}
+            echo Stacks available: ${STACKS}
 
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
@@ -438,6 +439,8 @@ jobs:
               aws s3 rb s3://udapeople-${OLD_WORKFLOW_ID} --force
               aws cloudformation delete-stack --stack-name backend-${OLD_WORKFLOW_ID}
               aws cloudformation delete-stack --stack-name frontend-${OLD_WORKFLOW_ID}
+            else
+              echo "No cloudfront to update"
             fi
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
