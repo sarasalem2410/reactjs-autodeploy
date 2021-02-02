@@ -5,7 +5,6 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      # Add parameter here
       workflow_id:
         type: "string"
     steps:
@@ -20,14 +19,12 @@ commands:
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
-      # Add parameter here
       workflow_id:
         type: "string"
     steps:
       - run:
           name: Revert migrations
           when: on_fail
-          # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             #SUCCESS = 1
@@ -102,7 +99,6 @@ jobs:
       # Restore from cache
       - restore_cache:
           keys: [backend-build]
-      # Your job code here
       - run:
           name: Run backend test.
           command: |
@@ -122,7 +118,6 @@ jobs:
       # Restore from cache
       - restore_cache:
           keys: [frontend-build]
-      # Your job code here
       - run:
           name: Analyze frontend.
           command: |
@@ -151,7 +146,6 @@ jobs:
       # Restore from cache
       - restore_cache:
           keys: [backend-build]
-      # Your job code here
       - run:
           name: Analyze backend.
           command: |
@@ -232,7 +226,6 @@ jobs:
           paths:
             - .circleci/ansible/inventory.txt
             - backend/
-      # # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
       - slack/notify:
@@ -273,7 +266,6 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-      # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
 
@@ -425,7 +417,7 @@ jobs:
       - run:
           name: Update cloudfront distribution
           command: |
-            export OLD_WORKFLOW_ID=$(aws cloudformation list-exports --query "Exports[?Name='WorkflowID'].Value" \
+            export OLD_WORKFLOW_ID=$(aws cloudformation list-exports --query "Exports[?Name=='WorkflowID'].Value" \
               --no-paginate --output text)
             # echo OLD_WORKFLOW_ID=${OLD_CIRCLE_WORKFLOW_ID:0:4}
 
