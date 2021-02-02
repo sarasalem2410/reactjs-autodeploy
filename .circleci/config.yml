@@ -371,8 +371,8 @@ jobs:
             # npm audit fix --force
             # npm i
             # npm run build
-            # tar -C backend -czvf backend_artifact.tar.gz .
-            tar -czfv backend_artifact.tar.gz backend/
+            tar -C backend -czvf backend_artifact.tar.gz .
+            # tar -czfv backend_artifact.tar.gz backend/
             ls
             mv backend_artifact.tar.gz ./.circleci/ansible/roles/deploy/files
             #../.circleci/ansible/roles/deploy/files
