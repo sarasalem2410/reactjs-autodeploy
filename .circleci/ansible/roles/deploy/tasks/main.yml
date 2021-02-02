@@ -13,6 +13,5 @@
 - name: Executing node
   become: true
   shell: |
-    cd ~/home/ubuntu/backend
+    cd ~/home/ubuntu/backend/dist
     pm2 start npm --name backend -- start
-    pm2 ls
