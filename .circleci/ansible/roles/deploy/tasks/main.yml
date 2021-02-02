@@ -7,7 +7,7 @@
 - name: "install package dependencies"
   shell: |
     cd /home/ubuntu
-    tar -xzvf backend_artifact.tar.gz -C backend/ && cd backend/
+    tar -xzvf backend_artifact.tar.gz -C backend && cd backend
     npm i
 - name: "build package"
   shell: |
