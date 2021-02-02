@@ -367,17 +367,13 @@ jobs:
           no_output_timeout: 30m
           command: |
             pwd
-            # cd backend
-            # npm audit fix --force
-            # npm i
-            # npm run build
             tar -C backend -czvf backend_artifact.tar.gz .
-            # tar -czfv backend_artifact.tar.gz backend/
+            # tar -czfv backend_artifact.tar.gz backend
             ls
             mv backend_artifact.tar.gz ./.circleci/ansible/roles/deploy/files
             #../.circleci/ansible/roles/deploy/files
-            ls ./.circleci/ansible/roles/deploy/files
-            cd ../.circleci/ansible
+            ls .circleci/ansible/roles/deploy/files
+            cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure
       - revert-migrations:
