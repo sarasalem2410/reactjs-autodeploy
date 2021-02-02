@@ -11,4 +11,5 @@
 - name: Unzip artifact
   shell: |
     cd ~/home/ubuntu
-    tar -C /dist -xvf backend_artifact.tar.gz
+    # tar -C /backend -xvf backend_artifact.tar.gz
+    tar -xzvf backend_artifact.tar.gz
