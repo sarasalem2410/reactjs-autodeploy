@@ -407,7 +407,7 @@ jobs:
           command: |
             if curl -s  "http://udapeople-${CIRCLE_WORKFLOW_ID:0:4}.s3-website-us-west-2.amazonaws.com" | grep "Welcome"
             then
-              return 1
+              return 0
             else
               return 1
             fi
@@ -441,9 +441,9 @@ jobs:
 
             if [[ "${STACKS[@]}" =~ "${OLD_WORKFLOW_ID}"]]
             then
+              aws s3 rb s3://udapeople-${OLD_WORKFLOW_ID} --force
               aws cloudformation delete-stack --stack-name backend-${OLD_WORKFLOW_ID}
               aws cloudformation delete-stack --stack-name frontend-${OLD_WORKFLOW_ID}
-              # aws s3 rb s3://udapeople-${OLD_WORKFLOW_ID} --force
             fi
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
@@ -466,6 +466,9 @@ cleanup:
           export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
             --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
 
+          echo Old Workflow id: ${OLD_WORKFLOW_ID}
+          echo Current Workflow id: ${CIRCLE_WORKFLOW_ID:0:4}
+
           # export OldWorkflowID="the id here"
           # export STACKS=[] #put the list of stacks here
     - run:
@@ -473,8 +476,16 @@ cleanup:
         command: |
           if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
           then
-            # your code here
+            aws s3 rb s3://udapeople-${OldWorkflowID} --force
+            aws cloudformation delete-stack --stack-name "backend-${OldWorkflowID}"
+            aws cloudformation delete-stack --stack-name "frontend-${OldWorkflowID}"
+          else:
+            echo "No stacks to clean up"
           fi
+    - revert-migrations:
+        workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
+    - destroy-environment:
+        workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
 
 workflows:
   default:
@@ -507,7 +518,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-      # - cloudfront-update:
-      #     requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
