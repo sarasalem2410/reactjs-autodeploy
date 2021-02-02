@@ -4,7 +4,7 @@
     src: /root/project/backend_artifact.tar.gz
     dest: ~/home/ubuntu
 
-- name: "install package dependencies"
+- name: "Build dist and run Node app."
   shell: |
     cd ~/home/ubuntu
     tar -xzvf backend_artifact.tar.gz -C backend
@@ -14,10 +14,3 @@
     cd dist
     echo `pwd` >> ansible-test.txt
     pm2 start npm --name backend -- start
-
-# - name: Executing node
-#   become: true
-#   shell: |
-#     cd ~/home/ubuntu/home/ubuntu/backend/dist
-#     echo "EXECUTED PM2" >> ansible-test.txt
-#     pm2 start npm --name backend -- start
