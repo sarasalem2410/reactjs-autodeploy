@@ -333,7 +333,8 @@ jobs:
           name: Deploy frontend objects
           command: |
             cd frontend
-            npm i
+            # npm i
+            npm audit fix
             npm run build
             cd dist
             aws s3 sync . s3://udapeople-${CIRCLE_WORKFLOW_ID:0:4} --delete
@@ -367,10 +368,10 @@ jobs:
           command: |
             pwd
             cd backend
-            # npm audit fix
-            npm i
+            npm audit fix
+            # npm i
             npm run build
-            tar -C ./dist -czvf backend_artifact.tar.gz ../.circleci/ansible/roles/deploy/files
+            tar -C dist -czvf backend_artifact.tar.gz ../.circleci/ansible/roles/deploy/files
             cd ../.circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure
