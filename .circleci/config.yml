@@ -428,8 +428,10 @@ jobs:
             export OLD_WORKFLOW_ID=$(aws cloudformation list-exports --query "Exports[?Name='WorkflowID'].Value" \
               --no-paginate --output text)
             # echo OLD_WORKFLOW_ID=${OLD_CIRCLE_WORKFLOW_ID:0:4}
+
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+
             echo Old Workflow Id: ${OLD_WORKFLOW_ID}
 
             aws cloudformation deploy \
@@ -450,42 +452,42 @@ jobs:
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
 
-cleanup:
-  docker:
-    - image: amazon/aws-cli
-  steps:
-    # Checkout code from git
-    - checkout
-    - run:
-        name: Get old stack workflow id
-        command: |
-          # your code here
-          export OLD_WORKFLOW_ID=$(aws cloudformation list-exports --query "Exports[?Name='WorkflowID'].Value" \
-            --no-paginate --output text)
+  cleanup:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Get old stack workflow id
+          command: |
+            # your code here
+            export OLD_WORKFLOW_ID=$(aws cloudformation list-exports --query "Exports[?Name='WorkflowID'].Value" \
+              --no-paginate --output text)
 
-          export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-            --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+              --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
 
-          echo Old Workflow id: ${OLD_WORKFLOW_ID}
-          echo Current Workflow id: ${CIRCLE_WORKFLOW_ID:0:4}
+            echo Old Workflow id: ${OLD_WORKFLOW_ID}
+            echo Current Workflow id: ${CIRCLE_WORKFLOW_ID:0:4}
 
-          # export OldWorkflowID="the id here"
-          # export STACKS=[] #put the list of stacks here
-    - run:
-        name: Remove old stacks and files
-        command: |
-          if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-          then
-            aws s3 rb s3://udapeople-${OldWorkflowID} --force
-            aws cloudformation delete-stack --stack-name "backend-${OldWorkflowID}"
-            aws cloudformation delete-stack --stack-name "frontend-${OldWorkflowID}"
-          else:
-            echo "No stacks to clean up"
-          fi
-    - revert-migrations:
-        workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
-    - destroy-environment:
-        workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
+            # export OldWorkflowID="the id here"
+            # export STACKS=[] #put the list of stacks here
+      - run:
+          name: Remove old stacks and files
+          command: |
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            then
+              aws s3 rb s3://udapeople-${OldWorkflowID} --force
+              aws cloudformation delete-stack --stack-name "backend-${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name "frontend-${OldWorkflowID}"
+            else:
+              echo "No stacks to clean up"
+            fi
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
 
 workflows:
   default:
