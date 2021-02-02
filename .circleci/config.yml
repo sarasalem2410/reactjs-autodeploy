@@ -368,10 +368,12 @@ jobs:
           command: |
             pwd
             cd backend
-            npm audit fix
+            npm audit fix --force
             # npm i
             npm run build
-            tar -C dist -czvf backend_artifact.tar.gz ../.circleci/ansible/roles/deploy/files
+            tar -C dist -czvf backend_artifact.tar.gz .
+            ls
+            #../.circleci/ansible/roles/deploy/files
             cd ../.circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure
