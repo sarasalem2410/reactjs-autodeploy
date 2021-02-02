@@ -127,7 +127,7 @@ jobs:
           name: Analyze frontend.
           command: |
             cd frontend
-            npm audit --audit-level=critical
+            npm audit --audit-level=critical --force
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -367,8 +367,8 @@ jobs:
           command: |
             pwd
             cd backend
-            npm audit fix
-            npm i
+            # npm audit fix
+            # npm i
             npm run build
             tar -C ./dist -czvf backend_artifact.tar.gz ../.circleci/ansible/roles/deploy/files
             cd ../.circleci/ansible
