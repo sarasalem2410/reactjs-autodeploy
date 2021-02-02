@@ -370,7 +370,7 @@ jobs:
             tar -C backend -czvf backend_artifact.tar.gz .
             # tar -czfv backend_artifact.tar.gz backend
             ls
-            mv backend_artifact.tar.gz ./.circleci/ansible/roles/deploy/files
+            mv backend_artifact.tar.gz .circleci/ansible/roles/deploy/files
             #../.circleci/ansible/roles/deploy/files
             ls .circleci/ansible/roles/deploy/files
             cd .circleci/ansible
