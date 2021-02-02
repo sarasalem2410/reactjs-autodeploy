@@ -7,16 +7,9 @@
 - name: "install package dependencies"
   shell: |
     cd /home/ubuntu
-    tar -xzvf backend_artifact.tar.gz -C backend && cd backend
-    npm i
-- name: "build package"
-  shell: |
-    cd /home/ubuntu/backend
-    npm run build
-# - name: "run migrations again"
-#   shell: |
-#     cd /home/ubuntu/backend
-#     npm run migrations
+    tar -xzvf backend_artifact.tar.gz -C backend
+    cd backend
+    npm i && npm run build
 - name: Executing node
   become: true
   shell: |
