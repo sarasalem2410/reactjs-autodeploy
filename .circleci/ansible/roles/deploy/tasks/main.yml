@@ -1,21 +1,22 @@
 ---
 - name: "Move backend files to server."
   copy:
-    src: /root/project/backend
+    src: /root/project/backend_artifact.tar.gz
     dest: /home/ubuntu
 
 - name: "install package dependencies"
   shell: |
-    cd /home/ubuntu/backend
+    cd /home/ubuntu
+    tar -xzvf backend_artifact.tar.gz -C backend/ && cd backend/
     npm i
 - name: "build package"
   shell: |
     cd /home/ubuntu/backend
     npm run build
-- name: "run migrations again"
-  shell: |
-    cd /home/ubuntu/backend
-    npm run migrations
+# - name: "run migrations again"
+#   shell: |
+#     cd /home/ubuntu/backend
+#     npm run migrations
 - name: Executing node
   become: true
   shell: |
