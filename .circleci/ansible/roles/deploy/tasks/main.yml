@@ -8,11 +8,12 @@
   shell: |
     cd ~/home/ubuntu
     tar -xzvf backend_artifact.tar.gz -C backend
+    rm backend_artifact.tar.gz
     cd backend/
     npm install && npm run build
 - name: Executing node
   become: true
   shell: |
-    cd ~/home/ubuntu/backend/dist
+    cd ~/home/ubuntu/home/ubuntu/backend/dist
     echo "EXECUTED PM2" >> ansible-test.txt
     pm2 start npm --name backend -- start
