@@ -1,15 +1,24 @@
 ---
-- name: Copy backend artifact.
+- name: "Move backend files to server."
+  copy:
+    src: /root/project/backend
+    dest: /home/ubuntu
+
+- name: "install package dependencies"
+  shell: |
+    cd /home/ubuntu/backend
+    npm i
+- name: "build package"
+  shell: |
+    cd /home/ubuntu/backend
+    npm run build
+- name: "run migrations again"
+  shell: |
+    cd /home/ubuntu/backend
+    npm run migrations
+- name: Executing node
   become: true
-  template:
-    src: "files/backend_artifact.tar.gz"
-    dest: "~/home/ubuntu"
-- name: Check file copied correctly
   shell: |
-    cd ~/home/ubuntu
-    ls
-- name: Unzip artifact
-  shell: |
-    cd ~/home/ubuntu
-    # tar -C /backend -xvf backend_artifact.tar.gz
-    tar -xzvf backend_artifact.tar.gz
+    cd /home/ubuntu/backend
+    pm2 start npm --name backend -- start
+    pm2 ls
