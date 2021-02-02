@@ -368,7 +368,7 @@ jobs:
             pwd
             cd backend
             # npm audit fix
-            # npm i
+            npm i
             npm run build
             tar -C ./dist -czvf backend_artifact.tar.gz ../.circleci/ansible/roles/deploy/files
             cd ../.circleci/ansible
