@@ -445,7 +445,7 @@ jobs:
             # All elements separated by spaces
             if [[ "${STACKS[@]}" =~ "${OLD_WORKFLOW_ID}" ]]
             then
-              aws s3 rb s3://udapeople-${OLD_WORKFLOW_ID} --force
+              aws s3 rm s3://udapeople-${OLD_WORKFLOW_ID} --recursive
               aws cloudformation delete-stack --stack-name backend-${OLD_WORKFLOW_ID}
               aws cloudformation delete-stack --stack-name frontend-${OLD_WORKFLOW_ID}
             fi
