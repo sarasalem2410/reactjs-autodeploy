@@ -461,7 +461,6 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - jq/install
       - run:
           name: Get old stack workflow id
           command: |
