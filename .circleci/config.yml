@@ -430,7 +430,7 @@ jobs:
 
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
-              --stack-name udapeople-cloudfront \
+              --stack-name production-distro \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:4} \
               --tags project=udapeople
@@ -442,7 +442,7 @@ jobs:
             echo Stacks available: ${STACKS}
 
             # All elements separated by spaces
-            [[ "${STACKS[@]}" =~ "${OLD_CIRCLE_WORKFLOW_ID}" ]]
+            if [[ "${STACKS[@]}" =~ "${OLD_CIRCLE_WORKFLOW_ID}" ]]
             then
               aws s3 rb s3://udapeople-${OLD_WORKFLOW_ID} --force
               aws cloudformation delete-stack --stack-name backend-${OLD_WORKFLOW_ID}
@@ -482,7 +482,7 @@ jobs:
           command: |
             # Get old workflow id
             export OLD_WORKFLOW_ID=$(curl -H "token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734" --request GET \
-            https://api.memstash.io/values/workflow_id)
+              https://api.memstash.io/values/workflow_id)
             # Get stack list
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
