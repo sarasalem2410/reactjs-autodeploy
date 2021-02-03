@@ -232,7 +232,6 @@ jobs:
           branch_pattern: main
           channel: C01LUFSU1QR
           event: fail
-          # mentions: "@here"
           template: basic_fail_1
 
   configure-infrastructure:
