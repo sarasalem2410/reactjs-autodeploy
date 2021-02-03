@@ -441,7 +441,7 @@ jobs:
               --stack-name production-distro \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:4} \
-              --tags project=udapeople &
+              --tags project=udapeople
 
             # # All elements separated by spaces
             # if [[ "${STACKS[@]}" =~ "${OLD_WORKFLOW_ID}" ]]
