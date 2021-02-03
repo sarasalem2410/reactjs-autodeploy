@@ -424,7 +424,7 @@ jobs:
               --template-file .circleci/files/cloudfront.yml \
               --stack-name udapeople-cloudfront \
               --region ${AWS_DEFAULT_REGION} \
-              --parmeter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:4} \
+              --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:4} \
               --tags project=udapeople
 
             export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
@@ -453,31 +453,62 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
+      # - run:
+      #     name: Get old stack workflow id
+      #     command: |
+      #       # your code here
+      #       export OLD_WORKFLOW_ID=$(aws cloudformation list-exports --query "Exports[?Name='WorkflowID'].Value" \
+      #         --no-paginate --output text)
+
+      #       export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+      #         --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+
+      #       echo Old Workflow id: ${OLD_WORKFLOW_ID}
+      #       echo Current Workflow id: ${CIRCLE_WORKFLOW_ID:0:4}
+
+      #       # export OLD_WORKFLOW_ID="the id here"
+      #       # export STACKS=[] #put the list of stacks here
+      # - run:
+      #     name: Remove old stacks and files
+      #     command: |
+      #       if [[ "${STACKS[@]}" =~ "${OLD_WORKFLOW_ID}" ]]
+      #       then
+      #         aws s3 rb s3://udapeople-${OLD_WORKFLOW_ID} --force
+      #         aws cloudformation delete-stack --stack-name "backend-${OLD_WORKFLOW_ID}"
+      #         aws cloudformation delete-stack --stack-name "frontend-${OLD_WORKFLOW_ID}"
+      #       else:
+      #         echo "No stacks to clean up"
+      #       fi
       - run:
-          name: Get old stack workflow id
+          name: Get old stack workflow id from memstash
           command: |
-            # your code here
-            export OLD_WORKFLOW_ID=$(aws cloudformation list-exports --query "Exports[?Name='WorkflowID'].Value" \
-              --no-paginate --output text)
-
+            # Get old workflow id
+            export OLD_WORKFLOW_ID=$(curl -H "token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734" --request GET \
+            https://api.memstash.io/values/workflow_id)
+            # Get stack list
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-              --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
-
-            echo Old Workflow id: ${OLD_WORKFLOW_ID}
-            echo Current Workflow id: ${CIRCLE_WORKFLOW_ID:0:4}
-
-            # export OldWorkflowID="the id here"
-            # export STACKS=[] #put the list of stacks here
+              --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+            echo Old Workflow Id ${OLD_WORKFLOW_ID}
+            echo "New id ${CIRCLE_WORKFLOW_ID:0:4}"
+            echo ${STACKS}
+      - run:
+          name: Save current workflow id to memstash
+          command: |
+            curl -H "Content-Type: text/plain" -H "token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734" \
+              --request PUT --data "${CIRCLE_WORKFLOW_ID:0:4}" \
+              https://api.memstash.io/values/workflow_id
       - run:
           name: Remove old stacks and files
           command: |
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-            then
-              aws s3 rb s3://udapeople-${OldWorkflowID} --force
-              aws cloudformation delete-stack --stack-name "backend-${OldWorkflowID}"
-              aws cloudformation delete-stack --stack-name "frontend-${OldWorkflowID}"
-            else:
-              echo "No stacks to clean up"
+            if [ "${OLD_WORKFLOW_ID}" != "" ]
+              then
+                  aws s3 rm "s3://udapeople-${OLD_WORKFLOW_ID}" --recursive
+                  aws cloudformation delete-stack \
+                    --stack-name "backend-${OLD_WORKFLOW_ID}"
+                  aws cloudformation delete-stack \
+                    --stack-name "frontend-${OLD_WORKFLOW_ID}"
+              else
+                  echo "There are no old stacks."  
             fi
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
