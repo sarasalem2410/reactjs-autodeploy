@@ -481,6 +481,7 @@ jobs:
             # else
             #     echo "There are no old stacks."
             # fi
+            # Comments end
 
             # Get old workflow id
             export OLD_WORKFLOW_ID=$(curl -H "token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734" --request GET \
