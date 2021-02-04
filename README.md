@@ -1,6 +1,6 @@
 ## Give your Application Auto-Deploy Superpowers
 
-[![geordie-quiroa](https://circleci.com/gh/geordie-quiroa/reactjs-autodeploy/tree/main.svg?style=svg)](https://github.com/geordie-quiroa/reactjs-autodeploy/tree/main)
+[![geordie-quiroa](https://circleci.com/gh/geordie-quiroa/reactjs-autodeploy/tree/main.svg?style=svg)](https://app.circleci.com/pipelines/github/geordie-quiroa/reactjs-autodeploy)
 
 In this project, you will prove your mastery of the following learning objectives:
 
