@@ -324,20 +324,24 @@ jobs:
             BACKEND_IP=$(curl -H "token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734" \
               --request GET https://api.memstash.io/values/hosts-deployed-${CIRCLE_WORKFLOW_ID:0:4})
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "API_URL=$API_URL" > frontend/.env
             echo "${API_URL}"
       - run:
           name: Deploy frontend objects
           command: |
             # echo "${API_URL}"
             cd frontend
-            echo ".env API_URL"
-            cat ".env"
             BACKEND_IP=$(curl -H "token: 32f0f419-eff1-45b7-9ac4-fe8b3ab08734" \
                 --request GET https://api.memstash.io/values/hosts-deployed-${CIRCLE_WORKFLOW_ID:0:4})
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "API_URL: ${API_URL}"
             npm audit fix
+
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL=${API_URL}"
+
+            echo API_URL=$API_URL > frontend/.env
+            echo ENVIRONMENT=production >> "frontend/.env"
+            echo NODE_ENV=production >> "frontend/.env"
+
+            cat ".env"
             npm run build
             cd dist
             aws s3 sync . s3://udapeople-${CIRCLE_WORKFLOW_ID:0:4} --delete
