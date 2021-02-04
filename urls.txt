@@ -1,0 +1,5 @@
+[URL01]: https://github.com/geordie-quiroa/reactjs-autodeploy
+[URL02]: S3 green bucket
+[URL03]: http://d1j43e1dba2xi1.cloudfront.net/
+[URL04]: EC2 backend url
+[URL05]: http://ec2-34-221-77-60.us-west-2.compute.amazonaws.com:9090/
