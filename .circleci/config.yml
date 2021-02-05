@@ -371,7 +371,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update tar gzip ansible nodejs npm curl
+            apk add --update tar gzip ansible nodejs npm curl openssh-client
             pip install awscli
       - run:
           name: Deploy backend
@@ -380,6 +380,7 @@ jobs:
             pwd
             # Try new steps:
             # get into backend, install dependencies, compile dist, tar dist folder, transfer zipped dist, open dist instead of backend
+            # export env variables to ansible
             # and launch the app with pm2
             tar -C backend -czvf backend_artifact.tar.gz .
             cd .circleci/ansible
