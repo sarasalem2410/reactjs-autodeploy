@@ -129,7 +129,6 @@ jobs:
       - slack/notify:
           channel: C01LUFSU1QR
           event: fail
-          # mentions: "@here"
           template: basic_fail_1
       - slack/notify:
           channel: C01LUFSU1QR
