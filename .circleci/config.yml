@@ -378,6 +378,9 @@ jobs:
           no_output_timeout: 30m
           command: |
             pwd
+            # Try new steps:
+            # get into backend, install dependencies, compile dist, tar dist folder, transfer zipped dist, open dist instead of backend
+            # and launch the app with pm2
             tar -C backend -czvf backend_artifact.tar.gz .
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
