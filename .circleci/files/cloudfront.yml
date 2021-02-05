@@ -37,7 +37,7 @@ Outputs:
     Export:
       Name: WorkflowID
   StaticDNS:
-    Value: !GetAtt WebpageCDN.DomainName
+    Value: !Join ["//", ["http:", !GetAtt WebpageCDN.DomainName]]
     Description: CDN endpoint for webapp.
     Export:
       Name: StaticDNS
