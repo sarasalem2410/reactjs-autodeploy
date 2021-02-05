@@ -130,10 +130,10 @@ jobs:
           channel: C01LUFSU1QR
           event: fail
           template: basic_fail_1
-      - slack/notify:
-          channel: C01LUFSU1QR
-          event: pass
-          template: success_tagged_deploy_1
+      # - slack/notify:
+      #     channel: C01LUFSU1QR
+      #     event: pass
+      #     template: success_tagged_deploy_1
 
   scan-backend:
     docker:
@@ -158,10 +158,10 @@ jobs:
           event: fail
           # mentions: "@here"
           template: basic_fail_1
-      - slack/notify:
-          channel: C01LUFSU1QR
-          event: pass
-          template: success_tagged_deploy_1
+      # - slack/notify:
+      #     channel: C01LUFSU1QR
+      #     event: pass
+      #     template: success_tagged_deploy_1
 
   deploy-infrastructure:
     docker:
@@ -456,6 +456,10 @@ jobs:
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:4} \
               --tags project=udapeople
+      - slack/notify:
+          channel: C01LUFSU1QR
+          event: pass
+          template: success_tagged_deploy_1
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:4}
       - destroy-environment:
