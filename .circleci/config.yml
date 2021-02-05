@@ -211,7 +211,7 @@ jobs:
       - run:
           name: Add .env vars to backend distro
           command: |
-            echo ENVIRONMENT=development > backend/.env
+            echo ENVIRONMENT=production > backend/.env
             echo TYPEORM_CONNECTION=postgres >> backend/.env
             echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> backend/.env
             echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
@@ -221,7 +221,7 @@ jobs:
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
             echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
             echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
-            echo NODE_ENV=development >> "backend/.env"
+            echo NODE_ENV=production >> "backend/.env"
       - restore_cache:
           keys: [backend-build]
       - persist_to_workspace:
@@ -379,11 +379,7 @@ jobs:
           name: Deploy backend
           no_output_timeout: 30m
           command: |
-            pwd
-            # Try new steps:
-            # get into backend, install dependencies, compile dist, tar dist folder, transfer zipped dist, open dist instead of backend
-            # export env variables to ansible
-            # and launch the app with pm2
+            pwd            
             tar -C backend -czvf backend_artifact.tar.gz .
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
