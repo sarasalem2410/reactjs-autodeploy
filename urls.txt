@@ -1,5 +1,5 @@
 [URL01]: https://github.com/geordie-quiroa/reactjs-autodeploy
-[URL02]: http://udapeople-d971.s3-website-us-west-2.amazonaws.com
-[URL03]: http://d1j43e1dba2xi1.cloudfront.net/
-[URL04]: ec2-34-220-254-159.us-west-2.compute.amazonaws.com
+[URL02]: http://udapeople-02cf.s3-website-us-west-2.amazonaws.com
+[URL03]: http://d1fmr9kfbc2fb0.cloudfront.net/
+[URL04]: ec2-34-221-18-199.us-west-2.compute.amazonaws.com
 [URL05]: http://ec2-34-221-77-60.us-west-2.compute.amazonaws.com:9090/
