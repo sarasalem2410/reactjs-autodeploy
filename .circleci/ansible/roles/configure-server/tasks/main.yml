@@ -30,7 +30,7 @@
     state: present
 - name: Create dist directory.
   file:
-    path: "~/home/ubuntu/backend"
+    path: "/home/ubuntu/backend"
     state: directory
 # - name: Move backend files to EC2 backend server.
 #   copy:
